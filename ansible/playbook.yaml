@@ -1,0 +1,37 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: true    # gather OS info that is made available for tasks/roles
+  become: yes           # majority of CIS tasks require root
+  vars:
+
+    awslogs_setup_region: us-east-1
+
+
+    sshd_admin_net: [192.168.0.0/24, 192.168.1.0/24]
+
+    awslogs_config:
+      - file: /var/ossec/logs/ossec.log
+        format: "%b %d %H:%M:%S"
+        group_name: Host_Message
+      - file: /var/ossec/logs/alerts/alerts.log
+        format: "%b %d %H:%M:%S"
+        group_name: HIDS_Alerts
+      - file: /var/log/lynis.log
+        format: "%b %d %H:%M:%S"
+        group_name: Lynis
+      - file: /var/log/boot.log
+        format: "%b %d %H:%M:%S"
+        group_name: BootLogs
+      - file: /var/log/messages
+        format: "%b %d %H:%M:%S"
+        group_name: Host_Message
+
+  roles:
+    - common
+    - clamav
+    - logagent
+    - ossec
+    - Harden
+    - lynis
+    - alerts

@@ -1,0 +1,19 @@
+---
+- src: git+https://github.com/rbd80/ansible-role-clamav.git
+  version: master
+  name: clamav
+- src: git+https://github.com/rbd80/ansible-role-awslogs-setup
+  version: master
+  name: logagent
+- src: git+https://github.com/rbd80/ansible-role-ossec
+  version: master
+  name: ossec
+- src: git+https://github.com/rbd80/ansible-role-hardening
+  version: master
+  name: Harden
+- src: git+https://github.com/rbd80/ansible-role-lynis
+  version: master
+  name: lynis
+
+#- src: git+https://github.com/rbd80/ansible-role-clamav.git
+#  version: master

@@ -1,0 +1,24 @@
+---
+# Handler to clean
+
+- name: Updating host using apt
+  apt:
+          update_cache: yes
+          upgrade: dist
+  when: ansible_pkg_mgr == "apt"
+- name: Update kernel to spefic version
+  apt:
+          name: "{{ k_ver }}"
+          state: latest
+  when: ansible_pkg_mgr == "apt"
+- name: Clean unwanted olderstuff
+  apt:
+          autoremove: yes
+          purge: yes
+  when: ansible_pkg_mgr == "apt"
+
+- name: yum-clean-metadata
+  command: yum clean metadata
+  args:
+    warn: no
+    when: ansible_pkg_mgr == "yum"

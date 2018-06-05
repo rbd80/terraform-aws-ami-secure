@@ -1,0 +1,129 @@
+{
+  "variables": {
+    "vpc": "{{env `BUILD_VPC_ID`}}",
+    "subnet": "{{env `BUILD_SUBNET_ID`}}",
+    "aws_region": "{{env `AWS_REGION`}}"
+  },
+  "builders": [{
+    "ami_name": "HARDEN-AMZN2-{{isotime \"02-Jan-06 03_04_05\"}}",
+    "ami_description": "Amazon Linux 2",
+    "associate_public_ip_address": "true",
+    "instance_type": "t2.small",
+    "name": "AMI Builder - Amazon Linux 2",
+    "region": "{{user `aws_region`}}",
+    "force_deregister": "true",
+    "force_delete_snapshot": "true",
+    "type": "amazon-ebs",
+    "ssh_username": "ec2-user",
+    "encrypt_boot": true,
+    "source_ami_filter": {
+    "filters": {
+    "virtualization-type": "hvm",
+    "name": "*amzn2-ami*-ebs",
+    "root-device-type": "ebs"
+    },
+    "owners": ["amazon"],
+    "most_recent": true
+    },
+    "tags": {
+    "Name": "{{user `ami_name`}}"
+    },
+    "run_tags": {
+    "Name": "{{user `ami_name`}}"
+    },
+    "run_volume_tags": {
+    "Name": "{{user `ami_name`}}"
+    },
+    "snapshot_tags": {
+    "Name": "{{user `ami_name`}}"
+    }
+    },{
+      "ami_name": "HARDEN-DEBIAN-{{isotime \"02-Jan-06 03_04_05\"}}",
+      "ami_description": "Harden Debian 1.8 Stretch",
+      "associate_public_ip_address": "true",
+      "instance_type": "t2.medium",
+      "name": "AMI Builder - Kubernetes Debian",
+      "region": "{{user `aws_region`}}",
+      "force_deregister": "true",
+      "force_delete_snapshot": "true",
+      "type": "amazon-ebs",
+      "ssh_username": "admin",
+      "encrypt_boot": true,
+      "source_ami_filter": {
+        "filters": {
+          "virtualization-type": "hvm",
+          "architecture": "x86_64",
+          "name": "*k8s-1.8-debian-stretch-*",
+          "block-device-mapping.volume-type": "gp2",
+          "root-device-type": "ebs"
+        },
+        "owners": ["383156758163"],
+        "most_recent": true
+      },
+      "tags": {
+        "Name": "{{user `ami_name`}}"
+      },
+      "run_tags": {
+        "Name": "{{user `ami_name`}}"
+      },
+      "run_volume_tags": {
+        "Name": "{{user `ami_name`}}"
+      },
+      "snapshot_tags": {
+        "Name": "{{user `ami_name`}}"
+      }
+    }],
+  "provisioners": [
+    {
+      "execute_command": "bash '{{.Path}}'",
+      "scripts": [
+        "scripts/ansible.sh"
+      ],
+      "type": "shell"
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "sudo easy_install pip",
+        "sudo yum install git -y",
+        "sudo pip install boto3",
+        "sudo pip install ansible"
+      ],
+      "only": ["AMI Builder - Amazon Linux 2"]
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "echo deb http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main | sudo tee -a /etc/apt/sources.list",
+        "sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 93C4A3FD7BB9C367",
+        "sudo apt-get update -y",
+        "sudo apt-get install ansible -y"
+      ],
+      "only": ["AMI Builder - Kubernetes Debian"]
+    },
+    {
+      "type": "ansible-local",
+      "playbook_dir": "ansible",
+      "playbook_file": "ansible/playbook.yaml",
+        "staging_directory": "~/tmp",
+      "extra_arguments": [
+        "", "--extra-vars \"amazon_locale=us-east-1\""
+        ],
+      "galaxy_file": "ansible/requirements.yaml",
+      "clean_staging_directory": true
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "rm .ssh/authorized_keys ; sudo rm /root/.ssh/authorized_keys"
+      ]
+    },
+    {
+      "execute_command": "bash '{{.Path}}'",
+      "scripts": [
+        "scripts/cleanup.sh"
+      ],
+      "type": "shell"
+    }
+  ]
+}
