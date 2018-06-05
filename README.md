@@ -18,6 +18,24 @@ roles to configure logging, Systemd hardening, auditing and AntiVirus.  N
 ## How to use
 Make update the the env.rc file.  Setup the AWS configure with the account to create the IaaS
 run the sh script to begin.
+
+```shell
+export AWS_PROFILE=XXXX
+export AWS_REGION="us-east-1"
+export AWS_ACCOUNT_ID=XXXXXXXXXXXX
+
+export STAGE=build
+export NAMESPACE="secureOS"
+
+export GITOWNER=xxxx
+export GITREPO=terraform-aws-ami-secure
+
+export GITTOKEN=xxxxxxxxxxxxxxxx
+export ADMIN_GROUP=iaas_svc
+export ADMIN_USERS="terraform_svc packer_svc"
+
+export KEY_NAME=demo_bastion
+```
  
  You need to configure the [AWS profile](https://docs.aws.amazon.com/cli/latest/userguide/cli-multiple-profiles.html).
 

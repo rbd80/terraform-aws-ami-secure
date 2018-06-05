@@ -11,11 +11,11 @@ phases:
       - echo ${packer_url}
       - curl -o packer.zip $packer_url && unzip packer.zip
       - echo "Validating Packer file"
-      - ./packer validate packer_cis.json
+      - AWS_PROFILE=packer_svc ./packer validate packer_cis.json
   build:
     commands:
       - echo "Building HashiCorp Packer templates"
-      - ./packer build -color=false packer_cis.json | tee build.log
+      - AWS_PROFILE=packer_svc ./packer build -color=false packer_cis.json | tee build.log
   post_build:
     commands:
         - egrep "${AWS_REGION}\:\sami\-" build.log | cut -d' ' -f2 > ami_id.txt
